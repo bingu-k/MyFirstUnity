@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Sockets;
 using ServerCore;
 
@@ -6,15 +6,15 @@ public class PacketManager
 {
     #region SingleTone
     static PacketManager _instance;
-    public static PacketManager Instance
-    {
-        get
-        {
-            if (_instance == null)
-                _instance = new PacketManager();
-            return _instance;
-        }
-    }
+	public static PacketManager Instance
+	{
+		get
+		{
+			if (_instance == null)
+				_instance = new PacketManager();
+			return _instance;
+		}
+	}
     #endregion
 
     Dictionary<ushort, Action<PacketSession, ArraySegment<byte>>> _onRecv = new Dictionary<ushort, Action<PacketSession, ArraySegment<byte>>>();
@@ -23,16 +23,13 @@ public class PacketManager
     public void Register()
     {
 
-        _onRecv.Add((ushort)PacketID.PlayerInfoReq, MakePacket<PlayerInfoReq>);
-        _handler.Add((ushort)PacketID.PlayerInfoReq, PacketHandler.PlayerInfoReqHandler);
-
-        _onRecv.Add((ushort)PacketID.Test, MakePacket<Test>);
-        _handler.Add((ushort)PacketID.Test, PacketHandler.TestHandler);
+        _onRecv.Add((ushort)PacketID.C_PlayerInfoReq, MakePacket<C_PlayerInfoReq>);
+        _handler.Add((ushort)PacketID.C_PlayerInfoReq, PacketHandler.C_PlayerInfoReqHandler);
 
     }
 
     public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer)
-    {
+	{
         ushort count = 0;
         ushort size = BitConverter.ToUInt16(buffer.Array, buffer.Offset + count);
         count += 2;

@@ -1,32 +1,45 @@
-﻿using ServerCore;
-using System;
-using System.Drawing;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Google.Protobuf;
+using Google.Protobuf.Protocol;
+using Google.Protobuf.WellKnownTypes;
+using ServerCore;
 
 namespace Server
 {
-    class Program
-    {
-        static Listener _listener = new Listener();
+	class Program
+	{
+		static Listener _listener = new Listener();
 
-        static void Main(string[] args)
-        {
-            PacketManager.Instance.Register();
+		static void FlushRoom()
+		{
+			JobTimer.Instance.Push(FlushRoom, 250);
+		}
 
-            string host = Dns.GetHostName();
-            IPHostEntry iphost = Dns.GetHostEntry(host);
-            IPAddress ipAddr = iphost.AddressList[0];
-            IPEndPoint endPoint = new IPEndPoint(ipAddr, 7777);
+		static void Main(string[] args)
+		{
+			// DNS (Domain Name System)
+			string host = Dns.GetHostName();
+			IPHostEntry ipHost = Dns.GetHostEntry(host);
+			IPAddress ipAddr = ipHost.AddressList[0];
+			IPEndPoint endPoint = new IPEndPoint(ipAddr, 7777);
 
-            _listener.Init(endPoint, () => { return new ClientSession(); });
+			_listener.Init(endPoint, () => { return SessionManager.Instance.Generate(); });
+			Console.WriteLine("Listening...");
 
-            Console.WriteLine("Listening...");
-            while (true)
-            {
-                Thread.Sleep(0);
-            }
-        }
-    }
+			//FlushRoom();
+			JobTimer.Instance.Push(FlushRoom);
+
+			while (true)
+			{
+				JobTimer.Instance.Flush();
+			}
+		}
+	}
 }

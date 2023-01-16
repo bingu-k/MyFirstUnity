@@ -1,47 +1,57 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 namespace ServerCore
 {
-    public class Listener
-    {
-        Socket _listenSocket;
+	public class Listener
+	{
+		Socket _listenSocket;
+		Func<Session> _sessionFactory;
 
-        Func<Session> _sessionFactory;
+		public void Init(IPEndPoint endPoint, Func<Session> sessionFactory, int register = 10, int backlog = 100)
+		{
+			_listenSocket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+			_sessionFactory += sessionFactory;
 
-        public void Init(IPEndPoint endPoint, Func<Session> sessionFactory)
-        {
-            _listenSocket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            _sessionFactory = sessionFactory;
-            _listenSocket.Bind(endPoint);
-            _listenSocket.Listen(10);
+			// 문지기 교육
+			_listenSocket.Bind(endPoint);
 
-            SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-            args.Completed += new EventHandler<SocketAsyncEventArgs>(OnAcceptCompleted);
-            RegisterAccept(args);
-        }
+			// 영업 시작
+			// backlog : 최대 대기수
+			_listenSocket.Listen(backlog);
 
-        void RegisterAccept(SocketAsyncEventArgs args)
-        {
-            args.AcceptSocket = null;
+			for (int i = 0; i < register; i++)
+			{
+				SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+				args.Completed += new EventHandler<SocketAsyncEventArgs>(OnAcceptCompleted);
+				RegisterAccept(args);
+			}
+		}
 
-            bool pending = _listenSocket.AcceptAsync(args);
-            if (pending == false)
-                OnAcceptCompleted(null, args);
-        }
+		void RegisterAccept(SocketAsyncEventArgs args)
+		{
+			args.AcceptSocket = null;
 
-        void OnAcceptCompleted(object sender, SocketAsyncEventArgs args)
-        {
-            if (args.SocketError == SocketError.Success)
-            {
-                Session session = _sessionFactory.Invoke();
-                session.Start(args.AcceptSocket);
-                session.OnConnected(args.AcceptSocket.RemoteEndPoint);
-            }
-            else
-                Console.WriteLine(args.SocketError.ToString());
-            RegisterAccept(args);
-        }
-    }
+			bool pending = _listenSocket.AcceptAsync(args);
+			if (pending == false)
+				OnAcceptCompleted(null, args);
+		}
+
+		void OnAcceptCompleted(object sender, SocketAsyncEventArgs args)
+		{
+			if (args.SocketError == SocketError.Success)
+			{
+				Session session = _sessionFactory.Invoke();
+				session.Start(args.AcceptSocket);
+				session.OnConnected(args.AcceptSocket.RemoteEndPoint);
+			}
+			else
+				Console.WriteLine(args.SocketError.ToString());
+
+			RegisterAccept(args);
+		}
+	}
 }

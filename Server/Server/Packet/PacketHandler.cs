@@ -1,17 +1,18 @@
-﻿using System;
+﻿using Google.Protobuf;
+using Google.Protobuf.Protocol;
+using Server;
 using ServerCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-public class PacketHandler
+class PacketHandler
 {
-    public static void PlayerInfoReqHandler(PacketSession session, IPacket packet)
-    {
-        PlayerInfoReq playerInfoReq = packet as PlayerInfoReq;
+	public static void C_ChatHandler(PacketSession session, IMessage packet)
+	{
+		S_Chat chatPacket = packet as S_Chat;
+		ClientSession serverSession = session as ClientSession;
 
-        Console.WriteLine($"PlayerInfoReq : {playerInfoReq.name}");
-        foreach (PlayerInfoReq.Skill skill in playerInfoReq.skills)
-            Console.WriteLine($"Skill Status\nID : {skill.id}\tLevel : {skill.level}\tDuration : {skill.duration}");
-    }
-
-    public static void TestHandler(PacketSession session, IPacket packet)
-    { }
+		Console.WriteLine(chatPacket.Context);
+	}
 }
