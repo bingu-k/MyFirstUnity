@@ -1,12 +1,11 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PoolManager
 {
-    #region PoolClass
-    class Pool
+	#region Pool
+	class Pool
     {
         public GameObject Original { get; private set; }
         public Transform Root { get; set; }
@@ -19,7 +18,7 @@ public class PoolManager
             Root = new GameObject().transform;
             Root.name = $"{original.name}_Root";
 
-            for (int i = 0; i < count; ++i)
+            for (int i = 0; i < count; i++)
                 Push(Create());
         }
 
@@ -34,6 +33,7 @@ public class PoolManager
         {
             if (poolable == null)
                 return;
+
             poolable.transform.parent = Root;
             poolable.gameObject.SetActive(false);
             poolable.IsUsing = false;
@@ -44,6 +44,7 @@ public class PoolManager
         public Poolable Pop(Transform parent)
         {
             Poolable poolable;
+
             if (_poolStack.Count > 0)
                 poolable = _poolStack.Pop();
             else
@@ -51,16 +52,20 @@ public class PoolManager
 
             poolable.gameObject.SetActive(true);
 
+            // DontDestroyOnLoad 해제 용도
             if (parent == null)
                 poolable.transform.parent = Managers.Scene.CurrentScene.transform;
+
             poolable.transform.parent = parent;
             poolable.IsUsing = true;
+
             return poolable;
         }
     }
-    #endregion
-    Dictionary<string, Pool> _pool = new Dictionary<string, Pool>();
-    Transform _root = null;
+	#endregion
+
+	Dictionary<string, Pool> _pool = new Dictionary<string, Pool>();
+    Transform _root;
 
     public void Init()
     {
@@ -80,21 +85,23 @@ public class PoolManager
         _pool.Add(original.name, pool);
     }
 
-    public void Push(Poolable poolabe)
+    public void Push(Poolable poolable)
     {
-        string name = poolabe.gameObject.name;
+        string name = poolable.gameObject.name;
         if (_pool.ContainsKey(name) == false)
         {
-            GameObject.Destroy(poolabe.gameObject);
+            GameObject.Destroy(poolable.gameObject);
             return;
         }
-        _pool[name].Push(poolabe);
+
+        _pool[name].Push(poolable);
     }
 
     public Poolable Pop(GameObject original, Transform parent = null)
     {
         if (_pool.ContainsKey(original.name) == false)
             CreatePool(original);
+
         return _pool[original.name].Pop(parent);
     }
 
@@ -109,6 +116,7 @@ public class PoolManager
     {
         foreach (Transform child in _root)
             GameObject.Destroy(child.gameObject);
+
         _pool.Clear();
     }
 }

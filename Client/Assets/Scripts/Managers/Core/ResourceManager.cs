@@ -1,6 +1,5 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ResourceManager
@@ -10,7 +9,7 @@ public class ResourceManager
         if (typeof(T) == typeof(GameObject))
         {
             string name = path;
-            int index = name.LastIndexOf("/");
+            int index = name.LastIndexOf('/');
             if (index >= 0)
                 name = name.Substring(index + 1);
 
@@ -18,6 +17,7 @@ public class ResourceManager
             if (go != null)
                 return go as T;
         }
+
         return Resources.Load<T>(path);
     }
 
@@ -29,8 +29,10 @@ public class ResourceManager
             Debug.Log($"Failed to load prefab : {path}");
             return null;
         }
+
         if (original.GetComponent<Poolable>() != null)
             return Managers.Pool.Pop(original, parent).gameObject;
+
         GameObject go = Object.Instantiate(original, parent);
         go.name = original.name;
         return go;
@@ -47,6 +49,7 @@ public class ResourceManager
             Managers.Pool.Push(poolable);
             return;
         }
+
         Object.Destroy(go);
     }
 }
