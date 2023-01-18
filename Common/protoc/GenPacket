@@ -1,0 +1,7 @@
+protoc -I=$HOME/Desktop/MyFirstUnity/Common/protoc/ --csharp_out=$HOME/Desktop/MyFirstUnity/Common/protoc/ $HOME/Desktop/MyFirstUnity/Common/protoc/Protocol.proto
+
+cp $HOME/Desktop/MyFirstUnity/Common/protoc/Protocol.cs $HOME/Desktop/MyFirstUnity/Client/Assets/Scripts/Packet
+cp $HOME/Desktop/MyFirstUnity/Common/protoc/Protocol.cs $HOME/Desktop/MyFirstUnity/Server/Server/Packet
+
+cp $HOME/Desktop/MyFirstUnity/Server/PacketGenerator/bin/ClientPacketManager.cs $HOME/Desktop/MyFirstUnity/Client/Assets/Scripts/Packet
+cp $HOME/Desktop/MyFirstUnity/Server/PacketGenerator/bin/ServerPacketManager.cs $HOME/Desktop/MyFirstUnity/Server/Server/Packet

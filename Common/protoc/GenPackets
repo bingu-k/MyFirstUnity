@@ -1,1 +1,0 @@
-protoc -I=$HOME/Desktop/MyFirstUnity/Common/protoc/ --csharp_out=$HOME/Desktop/MyFirstUnity/Common/protoc/ $HOME/Desktop/MyFirstUnity/Common/protoc/Protocol.proto
